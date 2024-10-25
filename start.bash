@@ -1,2 +1,2 @@
-docker build --tag tictactoe .
-docker run -p 3011:8080 --name tictactoe -d tictactoe
+docker build -t html-server-tic-tac-toe .  
+docker run -d --name tic-tac-toe -p 3011:80 html-server-tic-tac-toe

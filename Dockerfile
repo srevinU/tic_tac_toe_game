@@ -1,8 +1,4 @@
-FROM node:alpine AS base
-WORKDIR /app
-COPY ./ /app/
-RUN npm install
-RUN npm install http-server
+FROM nginx:alpine
+COPY . /usr/share/nginx/html/
 
-CMD ["npm", "run", "start"]
 
