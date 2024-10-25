@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<!-- tictacto grid -->
+<html>  
+    <head>
+        <title>Playground</title>
+        <link rel="stylesheet" type="text/css" href="./style.css">
+    </head>
+<body>
+
+    <input type="hidden" id="currentPlayer" value="Player 1">
+    <input type="hidden" id="" value="Player 2">
+
+    <div id="game-board">
+        <div id="board">
+            <h1>Tic Tac Toe</h1>
+
+            <h2 id="turn">Player 1</h2>
+
+            <div id="playground">
+                <div class="row">
+
+                    <div class="cell" id="cell-0"></div>
+                    <input class="cell-value" id="cell-0-value" disabled hidden></input>
+
+                    <div class="cell" id="cell-1"></div>
+                    <input class="cell-value" id="cell-1-value" disabled hidden></input>
+
+                    <div class="cell" id="cell-2"></div>
+                    <input class="cell-value" id="cell-2-value" disabled hidden></input>
+
+                </div>
+                <div class="row">
+
+                    <div class="cell" id="cell-3"></div>
+                    <input class="cell-value" id="cell-3-value" disabled hidden></input>
+                    
+                    <div class="cell" id="cell-4"></div>
+                    <input class="cell-value" id="cell-4-value" disabled hidden></input>
+                    
+                    <div class="cell" id="cell-5"></div>
+                    <input class="cell-value" id="cell-5-value" disabled hidden></input>
+
+                </div>
+                <div class="row">
+
+                    <div class="cell" id="cell-6"></div>
+                    <input class="cell-value" id="cell-6-value" disabled hidden></input>
+
+                    <div class="cell" id="cell-7"></div>
+                    <input class="cell-value" id="cell-7-value" disabled hidden></input>
+
+                    <div class="cell" id="cell-8"></div>
+                    <input class="cell-value" id="cell-8-value"  disabled hidden></input>
+
+                </div>
+                <div class="buttons">
+                    <button id="reset">Reset</button>
+                </div>
+            </div>
+            <div>
+                <div id="winMessage">Result</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+
+
+        let matrix = []
+
+        // ****************** rules ******************  //
+
+        function split(array, numberOfValues) {
+            const result = [];
+            while (array.length) {
+                result.push(array.splice(0, numberOfValues))
+            }
+            return result
+        }
+
+        function getInputsValuesAsArray() {
+            const arrayValue = Array.from(document.getElementsByClassName('cell-value'))
+            return split(arrayValue, 3);
+        }
+
+        function checkResult(count) {
+            return (count === 3 | count === -3 ? true : false)
+        }
+
+        function checkIfDraw() {
+            let draw = false;
+            const cell = []
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    if (parseInt(matrix[row][col].value) !== 0) {
+                        cell.push(parseInt(matrix[row][col].value));
+                        if (cell.length === 9) {
+                            draw = true;
+                        }
+                    }
+                }
+            }
+            return draw;
+        }
+
+        function checkColumnWin() {
+            let win = false;
+            const columnCounts = [0, 0, 0];
+
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    columnCounts[col] += parseInt(matrix[row][col].value);
+                }
+            }
+            return columnCounts.some(checkResult);
+        }
+
+        function checkRowWin() {
+            for (let row = 0; row < 3; row++) {
+                let rowCount = 0;
+                for (let col = 0; col < 3; col++) {
+                    rowCount += parseInt(matrix[row][col].value);
+                }
+                if (checkResult(rowCount)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkDiagonalWin() {
+            let diagonalCount = 0;
+            for (let index = 0; index < 3; index++) {
+                diagonalCount += parseInt(matrix[index][index].value);
+            }
+            if (checkResult(diagonalCount)) {
+                return true;
+            }
+
+            diagonalCount = 0;
+            for (let index = 0; index < 3; index++) {
+                diagonalCount += parseInt(matrix[index][2 - index].value);
+            }
+            if (checkResult(diagonalCount)) {
+                return true;
+            }
+            return false;
+        }
+
+        function setWinnerMessage(message) {
+            document.getElementById('winMessage').innerText = message;
+        }
+
+        function isGameWon() {
+            if (checkIfDraw()) {
+                setWinnerMessage("It's a draw !");
+                return null;
+            }
+            if (checkRowWin() || checkColumnWin() || checkDiagonalWin()) {
+                setWinnerMessage(`It is a win !`);
+                return true;
+            }
+            return false;
+        }
+
+        // ****************** actions ****************** //
+
+        const setPlayerTurn = (currentPlayer) => {
+            document.getElementById('turn').innerHTML = `${currentPlayer}`;
+            document.getElementById('currentPlayer').value = currentPlayer;
+        }
+
+        function startGame() {
+            document.querySelectorAll('.cell-value').forEach(cell => cell.value = "0");
+            setPlayerTurn('Player 1');
+        };
+
+        function resetGame() {
+            document.querySelectorAll('.cell').forEach(cell => cell.innerHTML = '');
+            document.querySelectorAll('.cell-value').forEach(cell => cell.value = "0");
+            setWinnerMessage("Result");
+            setPlayerTurn('Player 1');
+        };
+
+        function nextPlayer(currentPlayer) {
+            return currentPlayer === 'Player 1' ? 'Player 2' : 'Player 1';
+        }
+
+        function playerAction(event, symbol, numberAction, currentPlayerElement) {
+            document.getElementById(event.target.id).innerHTML = symbol;
+            document.getElementById(`${event.target.id}-value`).value = numberAction
+            currentPlayerElement.value = nextPlayer(currentPlayerElement.value);
+            setPlayerTurn(currentPlayerElement.value);
+        }
+
+        function cellClicked(event) {
+            const currentPlayerElement = document.getElementById('currentPlayer');
+            if (event.target.innerHTML === '') {
+                if (currentPlayerElement.value === 'Player 1') {
+                    playerAction(event, 'X', 1, currentPlayerElement)
+                } else {
+                    playerAction(event, 'O', -1, currentPlayerElement)
+                }
+            }
+            if (isGameWon() === null || isGameWon()) {
+                setPlayerTurn('Finished');
+                return
+            };
+        };
+
+        // ****************** Game ******************  //
+        // Start the game with player 1 to start
+        startGame();
+        // set events
+        const arraySymbol = Array.from(document.getElementsByClassName('cell'));
+        arraySymbol.forEach(cell => cell.addEventListener('click', cellClicked));
+        document.getElementById('reset').addEventListener('click', resetGame);
+        // Set matrix
+        let stateNumbers = [];
+        const inputs = Array.from(document.getElementsByClassName('cell-value'));
+        inputs.forEach(input => stateNumbers.push(input.value));
+        matrix = getInputsValuesAsArray(stateNumbers.value);
+    </script>
+
+</body>
+</html>
